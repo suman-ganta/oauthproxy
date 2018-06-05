@@ -37,18 +37,20 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
  */
 @Path("p")
 public class OpenIDProxyResource {
-    private final String issuer = "http://127.0.0.1:5556/dex";
-    private final String spec = "http://localhost:5556/dex/keys";
-    private final String clientId = "oic-proxy-app";
-    private final String clientSecret = "mysecretoicclient";
-    private final String domain = "http://127.0.0.1:5556/dex";
-    private final String redirectUri = "http://127.0.0.1:8089/p/callback";
+    private final String issuer = Main.opts.issuer;
+    private final String spec = issuer + "/keys";
+    private final String clientId = Main.opts.clientId;
+    private final String clientSecret = Main.opts.clientSecret;
+    private final String domain = issuer;
+    private final String redirectUri = Main.opts.redirectUri;
     private final String state = "I wish to wash my irish wristwatch";
     private static final String scope = "openid profile email offline_access";
     private static final String AUTH_COOKIE_NAME = "idtoken";
     public static final String REDIRECT_COOKIE_NAME = "org";
+
     @Context UriInfo proxyUri;
     @Context javax.ws.rs.core.Request req;
+
     private ObjectMapper mapper = new ObjectMapper();
     private static final Logger LOG = LoggerFactory.getLogger(OpenIDProxyResource.class);
 

@@ -3,43 +3,40 @@ package oracle.oauthproxy;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import picocli.CommandLine;
 
-import java.io.IOException;
 import java.net.URI;
 
 /**
- * Main class.
- *
+ * Bootstraps the proxy
  */
 public class Main {
-    // Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URI = "http://localhost:8090/";
+
+    public static Options opts;
 
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
      * @return Grizzly HTTP server.
      */
-    public static HttpServer startServer() {
-        // create a resource config that scans for JAX-RS resources and providers
-        // in oracle.oauthproxy package
+    public static HttpServer startServer(String baseUri) {
         final ResourceConfig rc = new ResourceConfig().packages("oracle.oauthproxy");
-
-        // create and start a new instance of grizzly http server
-        // exposing the Jersey application at BASE_URI
-        return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
+        return GrizzlyHttpServerFactory.createHttpServer(URI.create(baseUri), rc);
     }
 
     /**
      * Main method.
      * @param args
-     * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
-        final HttpServer server = startServer();
-        System.out.println(String.format("Jersey app started with WADL available at "
-                + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
-        System.in.read();
-        server.stop();
+    public static void main(String[] args) {
+        Main.opts = CommandLine.populateCommand(new Options(), args);
+        if (opts.usageHelpRequested) {
+            CommandLine.usage(new Options(), System.out);
+            return;
+        }
+        String baseUri = String.format("http://localhost:%s/", opts.port);
+        final HttpServer server = startServer(baseUri);
+        System.out.println(String.format("Proxy server started at " + baseUri));
+        Runtime.getRuntime().addShutdownHook(new Thread(server::shutdownNow));
     }
 }
 
