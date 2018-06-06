@@ -1,7 +1,6 @@
 This is Nginx compatible oauth proxy that acts as oauth client and performs authentication flows
 
-##Usage
------
+ ## Usage
 ```
 Usage: <main class> [-h] [-cb=<redirectUri>] [-ci=<clientId>]
                     [-cs=<clientSecret>] [-i=<issuer>] [-p=<port>]
@@ -21,8 +20,7 @@ Usage: <main class> [-h] [-cb=<redirectUri>] [-ci=<clientId>]
                             Default: 8090
 ```
 
-##Endpoints
----------
+## Endpoints
 It exposes the following endpoints:
 
 `/p/login` - This is entry point for authentication flows.
@@ -31,16 +29,14 @@ It exposes the following endpoints:
 
 `/p/auth` - Used by nginx to check if given request is authenticated.
 
-##Start server
-------------
+## Start server
 `java -jar target/oauthproxy-1.0-SNAPSHOT.jar`
 
-##Help
-------------
+## Help
 `java -jar target/oauthproxy-1.0-SNAPSHOT.jar --help`
 
-##Docker Image
+## Docker
 `docker run phx.ocir.io/oicpaas1/sumagant/oauthproxy:latest`
 
-##Kubernetes deployment
+## Kubernetes
 `kubectl apply -f oauthproxy/src/main/resources/dex-k8s.yaml`
