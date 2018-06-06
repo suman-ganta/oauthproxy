@@ -1,0 +1,106 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: dex
+  name: dex
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      containers:
+      - image: quay.io/coreos/dex:v2.10.0
+        name: dex
+        command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
+
+        ports:
+        - name: http
+          containerPort: 5556
+
+        volumeMounts:
+        - name: config
+          mountPath: /etc/dex/cfg
+      volumes:
+      - name: config
+        configMap:
+          name: dex
+          items:
+          - key: config.yaml
+            path: config.yaml
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dex
+data:
+  config.yaml: |
+    issuer: http://dex.oraclecloud.com
+    storage:
+      type: sqlite3
+      config:
+        file: ':memory:'
+    web:
+      http: 0.0.0.0:5556
+    connectors:
+    - type: github
+      id: github
+      name: GitHub
+      config:
+        clientID: cid1
+        clientSecret: mysecret
+        redirectURI: https://dex.example.com:32000/callback
+        org: kubernetes
+    oauth2:
+      skipApprovalScreen: true
+
+    staticClients:
+    - id: example-app
+      redirectURIs:
+      - 'http://127.0.0.1:5555/callback'
+      name: 'Example App'
+      secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+    - id: oic-proxy-app
+      redirectURIs:
+      - 'http://129.146.144.44/p/callback'
+      name: 'OIC Proxy App'
+      secret: mysecretoicclient
+    enablePasswordDB: true
+    staticPasswords:
+    - email: "admin@example.com"
+      # bcrypt hash of the string "password"
+      hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+      username: "admin"
+      userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+spec:
+  selector:
+    app: dex
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5556
+  selector:
+    app: dex
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dex-ing
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: dp.oraclecloud.com
+    http:
+      paths:
+      - path: /dex
+        backend:
+          serviceName: dex
+          servicePort: 80
