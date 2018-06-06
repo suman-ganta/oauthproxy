@@ -33,7 +33,7 @@ public class Main {
             CommandLine.usage(new Options(), System.out);
             return;
         }
-        String baseUri = String.format("http://localhost:%s/", opts.port);
+        String baseUri = String.format("http://0.0.0.0:%s/", opts.port);
         final HttpServer server = startServer(baseUri);
         System.out.println(String.format("Proxy server started at " + baseUri));
         Runtime.getRuntime().addShutdownHook(new Thread(server::shutdownNow));

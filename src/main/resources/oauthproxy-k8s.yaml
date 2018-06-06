@@ -44,3 +44,18 @@ spec:
   - protocol: TCP
     port: 80
     targetPort: 8090
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: oauthproxy-ing
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /p
+        backend:
+          serviceName: oauthproxy-service
+          servicePort: 80
