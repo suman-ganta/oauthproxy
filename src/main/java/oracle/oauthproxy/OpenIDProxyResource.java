@@ -66,7 +66,8 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
    */
   @Path("login") @GET public javax.ws.rs.core.Response login(
       @QueryParam("scope") @DefaultValue(value = scope) String sc,
-      @HeaderParam("X-Auth-Request-Redirect") String redirect) {
+      @HeaderParam("X-Auth-Request-Redirect") String redirect,
+      @QueryParam("rd") String rd) {
     HttpUrl httpUrl = HttpUrl.parse(getOpenIdConfig().getAuthorizationEndpoint()).newBuilder()
         .addQueryParameter("client_id", clientId)
         .addQueryParameter("redirect_uri", redirectUri)
@@ -75,7 +76,12 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
         .addQueryParameter("state", state)
         .build();
     LOG.debug("login - " + httpUrl.toString());
-    final NewCookie originalUrl = new NewCookie(REDIRECT_COOKIE_NAME, redirect, "/", null, DEFAULT_VERSION, null, DEFAULT_MAX_AGE, null, false, false);
+
+    String r = redirect != null ? redirect : rd;
+    LOG.info(String.format("Initial URL: '%s'", r));
+
+    final NewCookie originalUrl = new NewCookie(REDIRECT_COOKIE_NAME, r, "/",
+        null, DEFAULT_VERSION, null, DEFAULT_MAX_AGE, null, false, false);
     return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FOUND).location(httpUrl.uri()).
         cookie(originalUrl).build();
   }
@@ -123,13 +129,14 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
 
       //now token is here, lets set it as cookie
       final URI location = URI.create(org);
-      final NewCookie idTokenCookie = new NewCookie(IDTOKEN_COOKIE, tokenHolder.getIdToken(), "/", location.getAuthority(), DEFAULT_VERSION, null,
+      final NewCookie idTokenCookie = new NewCookie(IDTOKEN_COOKIE, tokenHolder.getIdToken(), "/", null, DEFAULT_VERSION, null,
           DEFAULT_MAX_AGE, null, false, false);
 
-      final NewCookie accessTokenCookie = new NewCookie(ACCESS_TOKEN_COOKIE, tokenHolder.getAccessToken(), "/", location.getAuthority(), DEFAULT_VERSION, null,
+      final NewCookie accessTokenCookie = new NewCookie(ACCESS_TOKEN_COOKIE, tokenHolder.getAccessToken(), "/", null, DEFAULT_VERSION, null,
           DEFAULT_MAX_AGE, null, false, false);
 
       //redirect to original request
+      LOG.debug("Tokens are attached to the domain: " + proxyUri.getAbsolutePath());
       return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FOUND).location(location).
           cookie(idTokenCookie).cookie(accessTokenCookie).build();
     } catch (IOException e) {
@@ -155,8 +162,10 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
     } else if (idToken != null) {
       token = idToken;
     }
-    if (token == null || token.isEmpty())
+    if (token == null || token.isEmpty()) {
+      LOG.debug("No token found for the uri: " + proxyUri.getAbsolutePath());
       return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+    }
 
     if (config.getValidationType().equals(OpenIdConfiguration.ValidationType.INTROSPECTION)) {
       if (introspect(accessToken)) {
