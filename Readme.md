@@ -1,6 +1,6 @@
 This is Nginx compatible oauth proxy that acts as oauth client and performs authentication flows
 
- ## Usage
+## Usage
 ```
 Usage: <main class> [-h] [-cb=<redirectUri>] [-ci=<clientId>]
                     [-cs=<clientSecret>] [-i=<issuer>] [-p=<port>]
@@ -40,3 +40,22 @@ It exposes the following endpoints:
 
 ## Kubernetes
 `kubectl apply -f oauthproxy/src/main/resources/dex-k8s.yaml`
+## Kubernetes Ingress usinge
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ing
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/auth-url: "https://<lbr ip>/p/p/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://<lbr ip>/p/p/login"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /eng
+        backend:
+          serviceName: dp-service
+          servicePort: 80
+```
