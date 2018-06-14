@@ -40,7 +40,7 @@ It exposes the following endpoints:
 
 ## Kubernetes
 `kubectl apply -f oauthproxy/src/main/resources/dex-k8s.yaml`
-## Kubernetes Ingress usinge
+## Kubernetes Ingress usage
 ```
 apiVersion: extensions/v1beta1
 kind: Ingress
