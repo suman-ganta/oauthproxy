@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -48,11 +49,17 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
   private static final String scope = "openid offline_access";
   private static final String IDTOKEN_COOKIE = "idtoken";
   private static final String ACCESS_TOKEN_COOKIE = "accesstoken";
+  private static final String TENANT_ID_COOKIE = "tenant";
   public static final String REDIRECT_COOKIE_NAME = "org";
   public static final String AUTHORIZATION_HEADER = "Authorization";
 
   @Context UriInfo proxyUri;
   @Context javax.ws.rs.core.Request req;
+
+  @HeaderParam("X-Forwarded-Host")
+  String forwardedHost;
+  @CookieParam(REDIRECT_COOKIE_NAME)
+  String initialUrl;
 
   private ObjectMapper mapper = new ObjectMapper();
   private static final Logger LOG = LoggerFactory.getLogger(OpenIDProxyResource.class);
@@ -130,16 +137,23 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
       //now token is here, lets set it as cookie
       final URI location = URI.create(org);
       String domain = getCookieDomain();
+      String tenantId = getTenantId();
       final NewCookie idTokenCookie = new NewCookie(IDTOKEN_COOKIE, tokenHolder.getIdToken(), "/", domain, DEFAULT_VERSION, null,
           DEFAULT_MAX_AGE, null, false, false);
 
       final NewCookie accessTokenCookie = new NewCookie(ACCESS_TOKEN_COOKIE, tokenHolder.getAccessToken(), "/", domain, DEFAULT_VERSION, null,
           DEFAULT_MAX_AGE, null, false, false);
 
+      final NewCookie tenantIdCooke = new NewCookie(TENANT_ID_COOKIE, tenantId, "/", domain, DEFAULT_VERSION, null,
+          DEFAULT_MAX_AGE, null, false, false);
+
       //redirect to original request
-      LOG.debug("Tokens are attached to the domain: " + proxyUri.getAbsolutePath());
-      return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FOUND).location(location).
-          cookie(idTokenCookie).cookie(accessTokenCookie).build();
+      LOG.debug("Tokens are attached to the domain: " + domain);
+      return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FOUND).location(location)
+          .cookie(idTokenCookie)
+          .cookie(accessTokenCookie)
+          .cookie(tenantIdCooke)
+          .build();
     } catch (IOException e) {
       LOG.error(e.getMessage(), e);
     }
@@ -156,6 +170,18 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
     }
     LOG.debug("Cookie domain: " + domain);
     return domain;
+  }
+
+  private String getTenantId() {
+    String domain = null;
+    if(domain == null && initialUrl != null){
+      domain = URI.create(initialUrl).getHost();
+    }
+    if(domain == null)
+      domain = proxyUri.getBaseUri().getHost();
+    String tenantId = domain.substring(0, domain.indexOf("."));
+    LOG.debug("TenantId: " + tenantId);
+    return tenantId;
   }
 
   private OpenIdConfiguration.DomainType typeOf(String domain) {
@@ -181,6 +207,12 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
       @HeaderParam(AUTHORIZATION_HEADER) String authzHeader,
       @CookieParam(IDTOKEN_COOKIE) String idToken,
       @CookieParam(ACCESS_TOKEN_COOKIE) String accessToken) {
+
+    //cookies to upon successful validation
+    String tenantId = getTenantId();
+    final NewCookie tenantIdCooke = new NewCookie(TENANT_ID_COOKIE, tenantId, "/", null, DEFAULT_VERSION, null,
+        DEFAULT_MAX_AGE, null, false, false);
+
     String token = null;
     if (authzHeader != null) {
       final String[] strings = authzHeader.split("//s+");
@@ -195,7 +227,7 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
 
     if (config.getValidationType().equals(OpenIdConfiguration.ValidationType.INTROSPECTION)) {
       if (introspect(accessToken)) {
-        return javax.ws.rs.core.Response.ok().build();
+        return javax.ws.rs.core.Response.ok().cookie(tenantIdCooke).cookie(tenantIdCooke).build();
       }else{
         return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
       }
@@ -219,7 +251,7 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
         LOG.error(e.getMessage(), e);
       }
 
-      return javax.ws.rs.core.Response.ok().build();
+      return javax.ws.rs.core.Response.ok().cookie(tenantIdCooke).build();
     } catch (JwkException e) {
       //IDCS does not expose Jwks endpoint publicly (driven by settings), hence token cannot be evaluated locally
       //perform introspection call
@@ -228,7 +260,7 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
       //try introspection
       if (introspect(token)) {
         config.setValidationType(OpenIdConfiguration.ValidationType.INTROSPECTION);
-        return javax.ws.rs.core.Response.ok().build();
+        return javax.ws.rs.core.Response.ok().cookie(tenantIdCooke).build();
       }
     } catch (MalformedURLException e) {
       LOG.error(e.getMessage(), e);
@@ -276,8 +308,10 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
     Map<String, Object> attributes;
     try {
       HttpUrl httpUrl = HttpUrl.parse(Main.opts.issuer).newBuilder().addPathSegments(".well-known/openid-configuration").build();
-
-      final InputStream inputStream = httpUrl.url().openStream();
+      final URLConnection urlConnection = httpUrl.url().openConnection();
+      urlConnection.setConnectTimeout(5000);
+      urlConnection.setReadTimeout(5000);
+      final InputStream inputStream = urlConnection.getInputStream();
       final JsonFactory factory = new JsonFactory();
       final JsonParser parser = factory.createParser(inputStream);
       final TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() {
@@ -286,6 +320,11 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
     } catch (IOException e) {
       LOG.error("Can't locate openId configuration", e);
       attributes = new HashMap<>();
+      final HttpUrl base = HttpUrl.parse(Main.opts.issuer);
+      attributes.put("authorization_endpoint", base.newBuilder().addPathSegments("oauth2/v1/authorize").build().url());
+      attributes.put("token_endpoint", base.newBuilder().addPathSegments("oauth2/v1/token").build().url());
+      attributes.put("introspection_endpoint", base.newBuilder().addPathSegments("oauth2/v1/introspect").build().url());
+      attributes.put("issuer", base.url());
     }
     config = OpenIdConfiguration.from(attributes);
     return config;
@@ -327,7 +366,11 @@ class OpenIdConfiguration {
     final Object introspect = map.get("introspection_endpoint");
     config.setIntrospectionEndpoint(introspect != null ? introspect.toString() : null);
     config.setIssuer(map.get("issuer").toString());
-    config.setJwksUri(map.get("jwks_uri").toString());
+    final Object jwks_uri = map.get("jwks_uri");
+    config.setJwksUri(jwks_uri != null ? jwks_uri.toString() : null);
+    if (jwks_uri == null) {
+      config.setValidationType(ValidationType.INTROSPECTION);
+    }
     return config;
   }
 
