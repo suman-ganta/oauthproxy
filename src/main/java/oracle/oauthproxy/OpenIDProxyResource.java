@@ -81,7 +81,7 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
     LOG.info(String.format("Initial URL: '%s'", r));
 
     final NewCookie originalUrl = new NewCookie(REDIRECT_COOKIE_NAME, r, "/",
-        null, DEFAULT_VERSION, null, DEFAULT_MAX_AGE, null, false, false);
+        getCookieDomain(), DEFAULT_VERSION, null, DEFAULT_MAX_AGE, null, false, false);
     return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.FOUND).location(httpUrl.uri()).
         cookie(originalUrl).build();
   }
@@ -129,10 +129,11 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
 
       //now token is here, lets set it as cookie
       final URI location = URI.create(org);
-      final NewCookie idTokenCookie = new NewCookie(IDTOKEN_COOKIE, tokenHolder.getIdToken(), "/", null, DEFAULT_VERSION, null,
+      String domain = getCookieDomain();
+      final NewCookie idTokenCookie = new NewCookie(IDTOKEN_COOKIE, tokenHolder.getIdToken(), "/", domain, DEFAULT_VERSION, null,
           DEFAULT_MAX_AGE, null, false, false);
 
-      final NewCookie accessTokenCookie = new NewCookie(ACCESS_TOKEN_COOKIE, tokenHolder.getAccessToken(), "/", null, DEFAULT_VERSION, null,
+      final NewCookie accessTokenCookie = new NewCookie(ACCESS_TOKEN_COOKIE, tokenHolder.getAccessToken(), "/", domain, DEFAULT_VERSION, null,
           DEFAULT_MAX_AGE, null, false, false);
 
       //redirect to original request
@@ -143,6 +144,31 @@ import static javax.ws.rs.core.NewCookie.DEFAULT_MAX_AGE;
       LOG.error(e.getMessage(), e);
     }
     return null;
+  }
+
+  private String getCookieDomain() {
+    String domain = proxyUri.getBaseUri().getHost();
+    LOG.debug("Uri Host: " + domain);
+    if (typeOf(domain).equals(OpenIdConfiguration.DomainType.FQDN)) {
+      domain = domain.substring(domain.indexOf(".") + 1);
+    }else{
+      domain = null;
+    }
+    LOG.debug("Cookie domain: " + domain);
+    return domain;
+  }
+
+  private OpenIdConfiguration.DomainType typeOf(String domain) {
+    if (domain.contains(":") && !domain.contains(".")) {
+      return OpenIdConfiguration.DomainType.IPv6;
+    }
+    if(domain.matches("^.[0-9]{1,3}/..[0-9]{1,3}/..[0-9]{1,3}/..[0-9]{1,3}")){
+      return OpenIdConfiguration.DomainType.IPv4;
+    }
+    if (domain.contains(".")) {
+      return OpenIdConfiguration.DomainType.FQDN;
+    }
+    return OpenIdConfiguration.DomainType.SHORT_NAME;
   }
 
   /**
@@ -340,5 +366,12 @@ class OpenIdConfiguration {
   public enum ValidationType{
     PUBLIC_KEY,
     INTROSPECTION
+  }
+
+  public enum DomainType{
+    IPv6,
+    IPv4,
+    FQDN,
+    SHORT_NAME
   }
 }
