@@ -1,23 +1,18 @@
 ---
-
 @title[Introduction]
 ### Tenant Request Lifecycle
 
 <span style="color:gray">DP on Kubernetes</span>
-
 ---
-
 @title[Tenant Request]
 ### Tenant Request
 ```
 https://t1.sumanganta.com/eng/ic/api/process/v1/dp-executions
 ```
 ---
-
 ### Host Resolution
 ![Flow Chart](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFJcbiAgICBSb290RE5TKFJvb3QgRE5TKSAtLT4gRE5TWm9uZShETlMgWm9uZSlcbiAgICBzdWJncmFwaCBPQ0lcbiAgICBETlNab25lIC0tPiBUZW5hbnREb21haW4oVGVuYW50IERvbWFpbilcbiAgICBlbmRcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In19)
 +++
-
 ### TLS
 Wild card certificate for OIC
 ```
@@ -47,17 +42,15 @@ spec:
           servicePort: 80
 ```
 ---
-
 ### Authentication
 
-<span style="color:gray">OAuth proxy</span>
+<span style="color:gray">OAuth Proxy</span>
 
 - Each unauthenticated request is routed to the proxy - https://www.sumanganta.com/p/p
 - Proxy is pre-seeded with clientId, secret per tenant via config maps (TODO)
 - Takes care of routing requests to IDCS and get access token.
 - Also acts as auth enforcement point
 ---
-
 ### Multi tenancy
 
 <span style="color:gray">An executable object that represents an AWS Gateway call.</span>
