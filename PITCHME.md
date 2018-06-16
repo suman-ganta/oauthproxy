@@ -15,8 +15,7 @@ https://t1.sumanganta.com/eng/ic/api/process/v1/dp-executions
 ---
 
 ### Host Resolution
-![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
-![Alt text](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFJcbiAgICBSb290RE5TKFJvb3QgRE5TKSAtLT4gRE5TWm9uZShETlMgWm9uZSlcbiAgICBzdWJncmFwaCBPQ0lcbiAgICBETlNab25lIC0tPiBUZW5hbnREb21haW4oVGVuYW50IERvbWFpbilcbiAgICBlbmRcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In19)
+![Flow Chart](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFJcbiAgICBSb290RE5TKFJvb3QgRE5TKSAtLT4gRE5TWm9uZShETlMgWm9uZSlcbiAgICBzdWJncmFwaCBPQ0lcbiAgICBETlNab25lIC0tPiBUZW5hbnREb21haW4oVGVuYW50IERvbWFpbilcbiAgICBlbmRcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In19)
 +++
 
 ### TLS
