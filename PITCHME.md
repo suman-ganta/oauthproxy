@@ -15,9 +15,8 @@ https://t1.sumanganta.com/eng/ic/api/process/v1/dp-executions
 ---
 
 ### Host Resolution
-
-![graph LR RootDNS(Root DNS) --> DNSZone(DNS Zone) subgraph OCI DNSZone --> TenantDomain(Tenant Domain) end](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFJcbiAgICBSb290RE5TKFJvb3QgRE5TKSAtLT4gRE5TWm9uZShETlMgWm9uZSlcbiAgICBzdWJncmFwaCBPQ0lcbiAgICBETlNab25lIC0tPiBUZW5hbnREb21haW4oVGVuYW50IERvbWFpbilcbiAgICBlbmRcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In19)
-<img src="https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFJcbiAgICBSb290RE5TKFJvb3QgRE5TKSAtLT4gRE5TWm9uZShETlMgWm9uZSlcbiAgICBzdWJncmFwaCBPQ0lcbiAgICBETlNab25lIC0tPiBUZW5hbnREb21haW4oVGVuYW50IERvbWFpbilcbiAgICBlbmRcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In19">![Al
+[//]: # graph LR RootDNS(Root DNS) --> DNSZone(DNS Zone) subgraph OCI DNSZone --> TenantDomain(Tenant Domain) end
+![Alt text](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFJcbiAgICBSb290RE5TKFJvb3QgRE5TKSAtLT4gRE5TWm9uZShETlMgWm9uZSlcbiAgICBzdWJncmFwaCBPQ0lcbiAgICBETlNab25lIC0tPiBUZW5hbnREb21haW4oVGVuYW50IERvbWFpbilcbiAgICBlbmRcbiIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In19)
 +++
 
 ### TLS
