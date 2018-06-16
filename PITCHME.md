@@ -16,8 +16,10 @@ https://t1.sumanganta.com/eng/ic/api/process/v1/dp-executions
 
 ### Host Resolution
 
-Root DNS --> OCI DNS Zone --> Tenant Subdomain --> Ingress Controller
----
+| --------|--------------|------------------|--------------------|
+|Root DNS | OCI DNS Zone | Tenant Subdomain | Ingress Controller |
+| --------|--------------|------------------|--------------------|
++++
 
 ### TLS
 Wild card certificate for OIC
