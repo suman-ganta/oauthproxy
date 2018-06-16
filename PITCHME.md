@@ -11,7 +11,7 @@ https://t1.sumanganta.com/eng/ic/api/process/v1/dp-executions
 ```
 ---
 ### Host Resolution
-![Flow Chart](./dns.svg)
+![Flow Chart](./dns.svg?sanitize=true)
 +++
 ### TLS
 Wild card certificate for OIC
