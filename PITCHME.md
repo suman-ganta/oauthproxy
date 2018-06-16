@@ -3,15 +3,15 @@
 @title[Introduction]
 ### Tenant Request Lifecycle
 
-
 <span style="color:gray">DP on Kubernetes</span>
 
 ---
 
 @title[Tenant Request]
 ### Tenant Request
+```
 https://t1.sumanganta.com/eng/ic/api/process/v1/dp-executions
-
+```
 ---
 
 ### Host Resolution
@@ -21,8 +21,9 @@ Root DNS --> OCI DNS Zone --> Tenant Subdomain --> Ingress Controller
 
 ### TLS
 Wild card certificate for OIC
+```
 *.sumanganta.com
-
+```
 ---
 
 ### Ingress Definition
@@ -56,8 +57,6 @@ spec:
 - Proxy is pre-seeded with clientId, secret per tenant via config maps (TODO)
 - Takes care of routing requests to IDCS and get access token.
 - Also acts as auth enforcement point
-
-
 ---
 
 ### Multi tenancy
@@ -84,4 +83,3 @@ data:
     db.username=sa
     db.password=
 ```
----
