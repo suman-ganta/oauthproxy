@@ -11,7 +11,7 @@ https://t1.sumanganta.com/eng/ic/api/process/v1/dp-executions
 ```
 ---
 ### Host Resolution
-![Flow Chart](./dns.svg?sanitize=true)
+![Flow Chart](./dns.png)
 +++
 ### TLS
 Wild card certificate for OIC
@@ -45,7 +45,7 @@ spec:
 ### Authentication
 
 ![request lifecycle](oauthproxy.png "Logo Title Text 1")
-
++++
 <span style="color:gray">OAuth Proxy</span>
 - Each unauthenticated request is routed to the proxy - https://www.sumanganta.com/p/p
 - Proxy is pre-seeded with clientId, secret per tenant via config maps (TODO)
