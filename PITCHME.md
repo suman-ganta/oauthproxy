@@ -44,8 +44,9 @@ spec:
 ---
 ### Authentication
 
-<span style="color:gray">OAuth Proxy</span>
+![request lifecycle](oauthproxy.png "Logo Title Text 1")
 
+<span style="color:gray">OAuth Proxy</span>
 - Each unauthenticated request is routed to the proxy - https://www.sumanganta.com/p/p
 - Proxy is pre-seeded with clientId, secret per tenant via config maps (TODO)
 - Takes care of routing requests to IDCS and get access token.
