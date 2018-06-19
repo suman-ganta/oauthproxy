@@ -54,7 +54,7 @@ spec:
 ---
 ### Multi tenancy
 
-<span style="color:gray">An executable object that represents an AWS Gateway call.</span>
+<span style="color:gray">Engine Config.</span>
 
 ```Yaml
 apiVersion: v1
