@@ -65,14 +65,24 @@ metadata:
 data:
   t1.properties: |-
     engine.name=t1
-    db.driverClass=org.h2.Driver
-    db.url=jdbc:h2:mem:process-engine1;DB_CLOSE_DELAY=1000
-    db.username=sa
-    db.password=
+    db.driverClass=oracle.jdbc.driver.OracleDriver
+    db.url=jdbc:oracle:thin:@dbaas:1521:XE
+    db.secret=t1secret
+    db.prefix=t1
   t2.properties: |-
     engine.name=t2
-    db.driverClass=org.h2.Driver
-    db.url=jdbc:h2:mem:process-engine2;DB_CLOSE_DELAY=1000
-    db.username=sa
-    db.password=
+    db.driverClass=oracle.jdbc.driver.OracleDriver
+    db.url=jdbc:oracle:thin:@dbaas:1521:XE
+    db.secret=t2secret
+    db.prefix=t2
 ```
+---
+### Tenant Onboarding
+#### OCI
+- Update DNS Zone records for the tenant
+#### IDCS
+- Add new IDCS App for tenant
+- Add oauth client secret for tenant
+#### OIC
+- Update Runtime ConfigMap(s) (If there is tenant specific config)
+- Add secrets of tenant (if DB credentials are different per tenant)
