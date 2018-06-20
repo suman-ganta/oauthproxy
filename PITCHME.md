@@ -1,7 +1,9 @@
 ---
 ### Dynamic Processes
 <span style="color:gray">DP on Kubernetes</span>
+---
 ![Flow Chart](./dp-k8s.png)
+## Service Interaction
 ---
 @title[Tenant Request]
 ### Tenant Request Lifecycle
