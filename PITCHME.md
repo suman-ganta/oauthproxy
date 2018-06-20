@@ -1,11 +1,10 @@
 ---
-@title[Introduction]
-### Tenant Request Lifecycle
-
+### Dynamic Processes
 <span style="color:gray">DP on Kubernetes</span>
+![Flow Chart](./dp-k8s.png)
 ---
 @title[Tenant Request]
-### Tenant Request
+### Tenant Request Lifecycle
 ```
 https://t1.sumanganta.com/eng/ic/api/process/v1/dp-executions
 ```
